@@ -7,12 +7,14 @@
 //
 
 import Foundation
+import UIKit
 
-struct WeatherModel : Decodable {
+struct WeatherModel: Decodable {
     
     let main: WeatherMain
     let weather: [WeatherInfo]
     let dt_txt: String?
+    var image: UIImage?
     
     enum CodingKeys: String, CodingKey {
         case main = "main"
