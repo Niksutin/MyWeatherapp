@@ -10,7 +10,7 @@ import Foundation
 
 struct ForecastModel : Decodable {
     
-    let list: [WeatherModel]
+    var list: [WeatherModel]
     
     enum CodingKeys: String, CodingKey {
         case list = "list"
