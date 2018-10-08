@@ -29,11 +29,20 @@ class SecondViewController: UIViewController, UITableViewDataSource, UITableView
         return cell
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        if FirstViewController.GlobalVariable.isGPSOn {
+            let lat = String(FirstViewController.GlobalVariable.lat)
+            let lon = String(FirstViewController.GlobalVariable.lon)
+            Fetcher.fetchUrl(url: "https://api.openweathermap.org/data/2.5/forecast/?lat=" + lat + "&lon=" + lon + "&units=metric&appid=4cba6b9833216c9b1ebc19387da17489", callback: self.doneFetchingForecast)
+        } else {
+            Fetcher.fetchUrl(url: "https://api.openweathermap.org/data/2.5/forecast/?q=" + FirstViewController.GlobalVariable.city + "&units=metric&appid=4cba6b9833216c9b1ebc19387da17489", callback: self.doneFetchingForecast)
+        }
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         self.tableView.dataSource = self
         self.tableView.delegate = self
-        Fetcher.fetchUrl(url: "https://api.openweathermap.org/data/2.5/forecast/?q=London,uk&units=metric&appid=4cba6b9833216c9b1ebc19387da17489", callback: self.doneFetchingForecast)
     }
 
     override func didReceiveMemoryWarning() {
@@ -42,6 +51,7 @@ class SecondViewController: UIViewController, UITableViewDataSource, UITableView
     
     func doneFetchingForecast(data: Data?, response: URLResponse?, error: Error?) {
         //let resstr = String(data: data!, encoding: String.Encoding.utf8)
+        
         guard let fetchedWeather = try? JSONDecoder().decode(ForecastModel.self, from: data!) else {
             print("Error during fetching")
             return

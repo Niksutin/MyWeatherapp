@@ -11,7 +11,7 @@ import UIKit
 class ThirdViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
     
     var data = ["Use GPS", "Tampere", "Helsinki", "Turku"]
-        
+    
     @IBOutlet weak var tableView: UITableView!
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -22,6 +22,15 @@ class ThirdViewController: UIViewController, UITableViewDataSource, UITableViewD
         let cell = UITableViewCell(style: .default, reuseIdentifier: "cellID")
         cell.textLabel?.text = self.data[indexPath.row]
         return cell
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        if indexPath.row == 0 {
+            FirstViewController.GlobalVariable.isGPSOn = true
+        } else {
+            FirstViewController.GlobalVariable.isGPSOn = false
+            FirstViewController.GlobalVariable.city = data[indexPath.row]
+        }
     }
     
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
@@ -45,7 +54,7 @@ class ThirdViewController: UIViewController, UITableViewDataSource, UITableViewD
     }
     
     func tableView(_ tableView: UITableView, targetIndexPathForMoveFromRowAt sourceIndexPath: IndexPath, toProposedIndexPath proposedDestinationIndexPath: IndexPath) -> IndexPath {
-        if(proposedDestinationIndexPath.row == 0) {
+        if proposedDestinationIndexPath.row == 0 {
             return sourceIndexPath
         }
         return proposedDestinationIndexPath
@@ -92,6 +101,7 @@ class ThirdViewController: UIViewController, UITableViewDataSource, UITableViewD
         super.viewDidLoad()
         self.tableView.dataSource = self
         self.tableView.delegate = self
+        self.tableView.selectRow(at: IndexPath(row: 0, section: 0), animated: true, scrollPosition: .top)
     }
     
     override func didReceiveMemoryWarning() {
