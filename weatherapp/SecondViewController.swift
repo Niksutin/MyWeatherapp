@@ -12,8 +12,10 @@ class SecondViewController: UIViewController, UITableViewDataSource, UITableView
 
     @IBOutlet weak var tableView: UITableView!
     
+    @IBOutlet weak var loadingIcon: UIActivityIndicatorView!
     var forecast = ForecastModel()
     var currentImageInArray = 0
+    let defaultDB = UserDefaults.standard
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return self.forecast.list.count
@@ -30,12 +32,13 @@ class SecondViewController: UIViewController, UITableViewDataSource, UITableView
     }
     
     override func viewDidAppear(_ animated: Bool) {
-        if FirstViewController.GlobalVariable.isGPSOn {
-            let lat = String(FirstViewController.GlobalVariable.lat)
-            let lon = String(FirstViewController.GlobalVariable.lon)
+        self.loadingIcon.startAnimating()
+        if self.defaultDB.integer(forKey: "selectedRow") == 0 {
+            let lat = String(self.defaultDB.double(forKey: "lat"))
+            let lon = String(self.defaultDB.double(forKey: "lon"))
             Fetcher.fetchUrl(url: "https://api.openweathermap.org/data/2.5/forecast/?lat=" + lat + "&lon=" + lon + "&units=metric&appid=4cba6b9833216c9b1ebc19387da17489", callback: self.doneFetchingForecast)
         } else {
-            let utf8str = String(utf8String: FirstViewController.GlobalVariable.city.cString(using: .utf8)!)
+            let utf8str = String(utf8String: (defaultDB.string(forKey: "selectedCity")?.cString(using: .utf8)!)!)
             Fetcher.fetchUrl(url: "https://api.openweathermap.org/data/2.5/forecast/?q=" + utf8str! + "&units=metric&appid=4cba6b9833216c9b1ebc19387da17489", callback: self.doneFetchingForecast)
         }
     }
@@ -44,6 +47,7 @@ class SecondViewController: UIViewController, UITableViewDataSource, UITableView
         super.viewDidLoad()
         self.tableView.dataSource = self
         self.tableView.delegate = self
+        self.loadingIcon.hidesWhenStopped = true
     }
 
     override func didReceiveMemoryWarning() {
@@ -60,6 +64,7 @@ class SecondViewController: UIViewController, UITableViewDataSource, UITableView
         self.forecast = fetchedWeather
         DispatchQueue.main.async(execute: {() in
             self.tableView.reloadData()
+            self.loadingIcon.stopAnimating()
         })
     }
 }

@@ -28,11 +28,8 @@ class ThirdViewController: UIViewController, UITableViewDataSource, UITableViewD
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         self.defaultDB.set(indexPath.row, forKey: "selectedRow")
-        if indexPath.row == 0 {
-            FirstViewController.GlobalVariable.isGPSOn = true
-        } else {
-            FirstViewController.GlobalVariable.isGPSOn = false
-            FirstViewController.GlobalVariable.city = data[indexPath.row]
+        if indexPath.row != 0 {
+            self.defaultDB.set(data[indexPath.row], forKey: "selectedCity")
         }
     }
     
@@ -98,7 +95,6 @@ class ThirdViewController: UIViewController, UITableViewDataSource, UITableViewD
             self.defaultDB.set(self.data, forKey: "savedCities")
             self.tableView.selectRow(at: IndexPath(row: 0, section: 0), animated: true, scrollPosition: .top)
             self.defaultDB.set(0, forKey: "selectedRow")
-            FirstViewController.GlobalVariable.isGPSOn = true
         } else {
             button.title = "Done"
             self.tableView.setEditing(true, animated: true)

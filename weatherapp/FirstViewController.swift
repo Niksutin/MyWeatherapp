@@ -14,25 +14,24 @@ class FirstViewController: UIViewController, CLLocationManagerDelegate {
     @IBOutlet weak var currentCity: UILabel!
     @IBOutlet weak var currentWeatherImage: UIImageView!
     @IBOutlet weak var currentTemperature: UILabel!
+    @IBOutlet weak var loadingIcon: UIActivityIndicatorView!
     
     var locationManager : CLLocationManager = CLLocationManager()
-
-    struct GlobalVariable {
-        static var isGPSOn: Bool = true
-        static var city: String = "Not found"
-        static var lat: Double = 0.0
-        static var lon: Double = 0.0
-    }
+    let defaultDB = UserDefaults.standard
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.loadingIcon.hidesWhenStopped = true
         self.locationManager.requestAlwaysAuthorization()
         self.locationManager.requestWhenInUseAuthorization()
     }
     
     public func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        FirstViewController.GlobalVariable.lat = locations[0].coordinate.latitude
-        FirstViewController.GlobalVariable.lon = locations[0].coordinate.longitude
+        let lat = locations[0].coordinate.latitude
+        let lon = locations[0].coordinate.longitude
+        self.defaultDB.set(lat, forKey: "lat")
+        self.defaultDB.set(lon, forKey: "lon")
+        
         CLGeocoder().reverseGeocodeLocation(locationManager.location!, completionHandler: { (placemarks, error) -> Void in
             if error != nil {
                 print("Reverse geocoder failed with error" + error!.localizedDescription)
@@ -41,11 +40,8 @@ class FirstViewController: UIViewController, CLLocationManagerDelegate {
             
             if (placemarks?.count)! > 0 {
                 let pm = placemarks![0] as CLPlacemark
-                FirstViewController.GlobalVariable.city = pm.locality!
-                print(FirstViewController.GlobalVariable.lat, FirstViewController.GlobalVariable.lon)
-                let lat = String(FirstViewController.GlobalVariable.lat)
-                let lon = String(FirstViewController.GlobalVariable.lon)
-                Fetcher.fetchUrl(url: "https://api.openweathermap.org/data/2.5/weather?lat=" + lat + "&lon=" + lon + "&units=metric&appid=4cba6b9833216c9b1ebc19387da17489", callback: self.doneFetchingCurrentWeather)
+                self.defaultDB.set(pm.locality!, forKey: "selectedCity")
+                Fetcher.fetchUrl(url: "https://api.openweathermap.org/data/2.5/weather?lat=" + String(lat) + "&lon=" + String(lon) + "&units=metric&appid=4cba6b9833216c9b1ebc19387da17489", callback: self.doneFetchingCurrentWeather)
             } else {
                 print("Problem with the data received from geocoder")
             }
@@ -58,12 +54,13 @@ class FirstViewController: UIViewController, CLLocationManagerDelegate {
     }
     
     override func viewDidAppear(_ animated: Bool) {
-        if CLLocationManager.locationServicesEnabled() && FirstViewController.GlobalVariable.isGPSOn {
+        self.loadingIcon.startAnimating()
+        if CLLocationManager.locationServicesEnabled() && defaultDB.integer(forKey: "selectedRow") == 0 {
             locationManager.delegate = self
             locationManager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
             locationManager.startUpdatingLocation()
         } else {
-            let utf8str = String(utf8String: FirstViewController.GlobalVariable.city.cString(using: .utf8)!)
+            let utf8str = String(utf8String: (self.defaultDB.string(forKey: "selectedCity")?.cString(using: .utf8)!)!)
             Fetcher.fetchUrl(url: "https://api.openweathermap.org/data/2.5/weather?q=" + utf8str! + "&units=metric&appid=4cba6b9833216c9b1ebc19387da17489", callback: self.doneFetchingCurrentWeather)
         }
     }
@@ -77,7 +74,8 @@ class FirstViewController: UIViewController, CLLocationManagerDelegate {
         DispatchQueue.main.async(execute: {() in
             self.currentTemperature.text = String(fetchedWeather.main.temp) + " °C"
             self.currentWeatherImage.image = UIImage(named: fetchedWeather.weather[0].icon)
-            self.currentCity.text = FirstViewController.GlobalVariable.city
+            self.currentCity.text = self.defaultDB.string(forKey: "selectedCity")
+            self.loadingIcon.stopAnimating()
         })
     }
 }
