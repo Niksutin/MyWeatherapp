@@ -13,8 +13,8 @@ class Fetcher {
         let config = URLSessionConfiguration.default
         
         let session = URLSession(configuration: config)
-        
-        let url : URL? = URL(string: url)
+        let encoded = url.addingPercentEncoding(withAllowedCharacters: .urlFragmentAllowed)
+        let url : URL? = URL(string: encoded!)
         
         let task = session.dataTask(with: url!, completionHandler: callback);
         

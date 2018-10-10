@@ -17,7 +17,6 @@ class FirstViewController: UIViewController, CLLocationManagerDelegate {
     
     var locationManager : CLLocationManager = CLLocationManager()
 
-    
     struct GlobalVariable {
         static var isGPSOn: Bool = true
         static var city: String = "Not found"
@@ -64,7 +63,8 @@ class FirstViewController: UIViewController, CLLocationManagerDelegate {
             locationManager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
             locationManager.startUpdatingLocation()
         } else {
-            Fetcher.fetchUrl(url: "https://api.openweathermap.org/data/2.5/weather?q=" + FirstViewController.GlobalVariable.city + "&units=metric&appid=4cba6b9833216c9b1ebc19387da17489", callback: self.doneFetchingCurrentWeather)
+            let utf8str = String(utf8String: FirstViewController.GlobalVariable.city.cString(using: .utf8)!)
+            Fetcher.fetchUrl(url: "https://api.openweathermap.org/data/2.5/weather?q=" + utf8str! + "&units=metric&appid=4cba6b9833216c9b1ebc19387da17489", callback: self.doneFetchingCurrentWeather)
         }
     }
     

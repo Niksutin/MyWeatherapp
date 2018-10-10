@@ -35,7 +35,8 @@ class SecondViewController: UIViewController, UITableViewDataSource, UITableView
             let lon = String(FirstViewController.GlobalVariable.lon)
             Fetcher.fetchUrl(url: "https://api.openweathermap.org/data/2.5/forecast/?lat=" + lat + "&lon=" + lon + "&units=metric&appid=4cba6b9833216c9b1ebc19387da17489", callback: self.doneFetchingForecast)
         } else {
-            Fetcher.fetchUrl(url: "https://api.openweathermap.org/data/2.5/forecast/?q=" + FirstViewController.GlobalVariable.city + "&units=metric&appid=4cba6b9833216c9b1ebc19387da17489", callback: self.doneFetchingForecast)
+            let utf8str = String(utf8String: FirstViewController.GlobalVariable.city.cString(using: .utf8)!)
+            Fetcher.fetchUrl(url: "https://api.openweathermap.org/data/2.5/forecast/?q=" + utf8str! + "&units=metric&appid=4cba6b9833216c9b1ebc19387da17489", callback: self.doneFetchingForecast)
         }
     }
     

@@ -12,6 +12,8 @@ class ThirdViewController: UIViewController, UITableViewDataSource, UITableViewD
     
     var data = ["Use GPS", "Tampere", "Helsinki", "Turku"]
     
+    var defaultDB = UserDefaults.standard
+    
     @IBOutlet weak var tableView: UITableView!
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -25,6 +27,7 @@ class ThirdViewController: UIViewController, UITableViewDataSource, UITableViewD
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        self.defaultDB.set(indexPath.row, forKey: "selectedRow")
         if indexPath.row == 0 {
             FirstViewController.GlobalVariable.isGPSOn = true
         } else {
@@ -49,8 +52,8 @@ class ThirdViewController: UIViewController, UITableViewDataSource, UITableViewD
     
     func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
         let movedObject = self.data[sourceIndexPath.row]
-        data.remove(at: sourceIndexPath.row)
-        data.insert(movedObject, at: destinationIndexPath.row)
+        self.data.remove(at: sourceIndexPath.row)
+        self.data.insert(movedObject, at: destinationIndexPath.row)
     }
     
     func tableView(_ tableView: UITableView, targetIndexPathForMoveFromRowAt sourceIndexPath: IndexPath, toProposedIndexPath proposedDestinationIndexPath: IndexPath) -> IndexPath {
@@ -70,6 +73,7 @@ class ThirdViewController: UIViewController, UITableViewDataSource, UITableViewD
                 self.data.append(textField.text!)
                 self.tableView.beginUpdates()
                 self.tableView.insertRows(at: [IndexPath(row: self.data.count-1, section: 0)], with: .automatic)
+                self.defaultDB.set(self.data, forKey: "savedCities")
                 self.tableView.endUpdates()
             }
         }
@@ -91,6 +95,10 @@ class ThirdViewController: UIViewController, UITableViewDataSource, UITableViewD
         if self.tableView.isEditing {
             button.title = "Edit"
             self.tableView.setEditing(false, animated: true)
+            self.defaultDB.set(self.data, forKey: "savedCities")
+            self.tableView.selectRow(at: IndexPath(row: 0, section: 0), animated: true, scrollPosition: .top)
+            self.defaultDB.set(0, forKey: "selectedRow")
+            FirstViewController.GlobalVariable.isGPSOn = true
         } else {
             button.title = "Done"
             self.tableView.setEditing(true, animated: true)
@@ -101,7 +109,19 @@ class ThirdViewController: UIViewController, UITableViewDataSource, UITableViewD
         super.viewDidLoad()
         self.tableView.dataSource = self
         self.tableView.delegate = self
-        self.tableView.selectRow(at: IndexPath(row: 0, section: 0), animated: true, scrollPosition: .top)
+        
+        //self.defaultDB.set(0, forKey: "selectedRow")
+        
+        if self.defaultDB.array(forKey: "savedCities") != nil {
+            self.data = self.defaultDB.array(forKey: "savedCities") as! [String]
+            print(self.defaultDB.array(forKey: "savedCities") as! [String])
+        }
+        
+        if defaultDB.integer(forKey: "selectedRow") != 0 {
+            self.tableView.selectRow(at: IndexPath(row: self.defaultDB.integer(forKey: "selectedRow"), section: 0), animated: true, scrollPosition: .top)
+        } else {
+            self.tableView.selectRow(at: IndexPath(row: 0, section: 0), animated: true, scrollPosition: .top)
+        }
     }
     
     override func didReceiveMemoryWarning() {
