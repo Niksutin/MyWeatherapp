@@ -70,7 +70,6 @@ class FirstViewController: UIViewController, CLLocationManagerDelegate {
             print("Error during fetching")
             return
         }
-        
         DispatchQueue.main.async(execute: {() in
             self.currentTemperature.text = String(fetchedWeather.main.temp) + " °C"
             self.currentWeatherImage.image = UIImage(named: fetchedWeather.weather[0].icon)

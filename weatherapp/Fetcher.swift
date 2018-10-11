@@ -5,7 +5,6 @@
 //  Created by Niko Mattila on 06/10/2018.
 //  Copyright © 2018 Niko Mattila. All rights reserved.
 //
-
 import Foundation
 
 class Fetcher {
@@ -16,7 +15,7 @@ class Fetcher {
         let encoded = url.addingPercentEncoding(withAllowedCharacters: .urlFragmentAllowed)
         let url : URL? = URL(string: encoded!)
         
-        let task = session.dataTask(with: url!, completionHandler: callback);
+        let task = session.dataTask(with: url!, completionHandler: callback)
         
         // Starts the task, spawns a new thread and calls the callback function
         task.resume();
